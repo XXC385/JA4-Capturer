@@ -3,6 +3,9 @@
   <component name="Black">
     <option name="sdkName" value="Python 3.11 (pythonProject)" />
   </component>
+  <component name="JavaScriptSettings">
+    <option name="languageLevel" value="FLOW" />
+  </component>
   <component name="ProjectRootManager" version="2" project-jdk-name="Remote Python 3.10.12 (sftp://root@47.94.105.66:22/usr/ja4/pycharm/bin/python)" project-jdk-type="Python SDK" />
   <component name="PyCharmProfessionalAdvertiser">
     <option name="shown" value="true" />

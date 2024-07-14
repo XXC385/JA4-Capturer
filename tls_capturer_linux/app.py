@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import json
 from flask import Flask, render_template, request
 from concurrent.futures import ThreadPoolExecutor
 import os
@@ -54,15 +55,32 @@ def ja4_results():
         if filename.endswith('.pcap'):
             file = os.path.join(pcap_dir, filename)
             # 将pcap文件传递给ja4.py进行处理
-            ja4 = ['python3', '/usr/ja4/tls_capturer_linux/utils/ja4.py', file]
+            ja4 = ['python3', '/usr/ja4/tls_capturer_linux/utils/ja4.py',"-J" ,file]
             result = subprocess.run(ja4, capture_output=True, text=True)
 
             ja4_result = result.stdout.strip()
 
-            # 将处理结果保存到results列表中
+            # 将字符串按独立的 JSON 对象分割
+            json_strings = ja4_result.strip().split('\n}\n{')
+            json_strings = [s if s.startswith('{') else '{' + s for s in json_strings]
+            json_strings = [s if s.endswith('}') else s + '}' for s in json_strings]
+
+            # 解析并过滤数据
+            filtered_data = []
+            for json_str in json_strings:
+                try:
+                    entry = json.loads(json_str)
+                    filtered_entry = {"JA4": entry["JA4"], "src": entry["src"]}
+                    filtered_data.append(filtered_entry)
+                except json.JSONDecodeError as e:
+                    print(f"JSONDecodeError: {e}")
+
+            # 将过滤后的数据转换为 JSON 字符串
+            filtered_data_str = json.dumps(filtered_data, indent=4)
+
             results.append({
                 'filename': filename,
-                'ja4_result': ja4_result
+                'ja4_result': filtered_data_str
             })
 
     return render_template('ja4_results.html', results=results)
