@@ -55,7 +55,7 @@ def ja4_results():
         if filename.endswith('.pcap'):
             file = os.path.join(pcap_dir, filename)
             # 将pcap文件传递给ja4.py进行处理
-            ja4 = ['python3', '/usr/ja4/tls_capturer_linux/utils/ja4.py',"-J" ,file]
+            ja4 = ['python3', '/usr/ja4/tls_capturer_linux/utils/ja4.py', "-J", file]
             result = subprocess.run(ja4, capture_output=True, text=True)
 
             ja4_result = result.stdout.strip()
@@ -70,8 +70,11 @@ def ja4_results():
             for json_str in json_strings:
                 try:
                     entry = json.loads(json_str)
-                    filtered_entry = {"JA4": entry["JA4"], "src": entry["src"]}
-                    filtered_data.append(filtered_entry)
+                    if 'JA4' in entry and 'src' in entry:
+                        filtered_entry = {"JA4": entry["JA4"], "src": entry["src"]}
+                        filtered_data.append(filtered_entry)
+                    else:
+                        print(f"Missing expected keys in entry: {entry}")
                 except json.JSONDecodeError as e:
                     print(f"JSONDecodeError: {e}")
 
